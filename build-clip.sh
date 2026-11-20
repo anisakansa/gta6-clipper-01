@@ -65,10 +65,10 @@ pitch() {
   local n="$1" dur="$2" line1="$3" line2="$4" accent="$5" size1="$6" size2="$7" line3="${8:-}" size3="${9:-0}" accent3="${10:-#FFD34D}"
   printf '%s' "$line1" > "$WORK/p1_$n.txt"
   printf '%s' "$line2" > "$WORK/p2_$n.txt"
-  local filters="drawtext=fontfile=$FONT:textfile=$WORK/p1_$n.txt:fontsize=$size1:fontcolor=white:borderw=3:bordercolor=black:x=(w-text_w)/2:y=h*0.36:box=1:boxcolor=black@0.55:boxborderw=24,drawtext=fontfile=$FONT:textfile=$WORK/p2_$n.txt:fontsize=$size2:fontcolor=$accent:borderw=3:bordercolor=black:x=(w-text_w)/2:y=h*0.47:box=1:boxcolor=black@0.55:boxborderw=24"
+  local filters="drawtext=fontfile=$FONT:textfile=$WORK/p1_$n.txt:fontsize=$size1:fontcolor=white:borderw=3:bordercolor=black:x=(w-text_w)/2:y=h*0.40:box=1:boxcolor=black@0.55:boxborderw=24,drawtext=fontfile=$FONT:textfile=$WORK/p2_$n.txt:fontsize=$size2:fontcolor=$accent:borderw=3:bordercolor=black:x=(w-text_w)/2:y=h*0.51:box=1:boxcolor=black@0.55:boxborderw=24"
   if [ -n "$line3" ]; then
     printf '%s' "$line3" > "$WORK/p3_$n.txt"
-    filters="$filters,drawtext=fontfile=$FONT:textfile=$WORK/p3_$n.txt:fontsize=$size3:fontcolor=$accent3:borderw=3:bordercolor=black:x=(w-text_w)/2:y=h*0.60:box=1:boxcolor=black@0.55:boxborderw=24"
+    filters="$filters,drawtext=fontfile=$FONT:textfile=$WORK/p3_$n.txt:fontsize=$size3:fontcolor=$accent3:borderw=3:bordercolor=black:x=(w-text_w)/2:y=h*0.63:box=1:boxcolor=black@0.55:boxborderw=24"
   fi
   ffmpeg -y -v error -f lavfi -i "color=c=0x0a0a12:s=1080x1920:r=30:d=$dur" \
     -f lavfi -i "anullsrc=r=48000:cl=stereo" -t "$dur" \

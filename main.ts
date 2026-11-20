@@ -91,17 +91,17 @@ function buildClip(source: string, out: string): void {
     writeFileSync(f2, line2);
     let filters =
       `drawtext=fontfile=${FONT}:textfile=${f1}:fontsize=${size1}:fontcolor=white:` +
-      `borderw=3:bordercolor=black:x=(w-text_w)/2:y=h*0.36:` +
+      `borderw=3:bordercolor=black:x=(w-text_w)/2:y=h*0.40:` +
       `box=1:boxcolor=black@0.55:boxborderw=24,` +
       `drawtext=fontfile=${FONT}:textfile=${f2}:fontsize=${size2}:fontcolor=${accent}:` +
-      `borderw=3:bordercolor=black:x=(w-text_w)/2:y=h*0.47:` +
+      `borderw=3:bordercolor=black:x=(w-text_w)/2:y=h*0.51:` +
       `box=1:boxcolor=black@0.55:boxborderw=24`;
     if (line3) {
       const f3 = join(work, `p3_${idx}.txt`);
       writeFileSync(f3, line3);
       filters +=
         `,drawtext=fontfile=${FONT}:textfile=${f3}:fontsize=${size3}:` +
-        `fontcolor=${accent3}:borderw=3:bordercolor=black:x=(w-text_w)/2:y=h*0.60:` +
+        `fontcolor=${accent3}:borderw=3:bordercolor=black:x=(w-text_w)/2:y=h*0.63:` +
         `box=1:boxcolor=black@0.55:boxborderw=24`;
     }
     const pitchFile = join(work, `pitch${idx}.mp4`);
@@ -125,6 +125,24 @@ function buildClip(source: string, out: string): void {
     '-c:a', 'aac', '-b:a', '128k', '-movflags', '+faststart', '-shortest', out,
   ]);
   rmSync(work, { recursive: true, force: true });
+
+  // Verify the rebuild: a Short must be vertical 1080x1920 and under 60s.
+  const probe = JSON.parse(
+    execFileSync(
+      'ffprobe',
+      ['-v', 'error', '-show_entries', 'stream=width,height', '-show_entries', 'format=duration', '-of', 'json', out],
+      { encoding: 'utf8' },
+    ) as string,
+  ) as { streams: Array<{ width: number; height: number }>; format: { duration: string } };
+  const video = probe.streams[0];
+  const duration = parseFloat(probe.format.duration);
+  console.log(`built ${out}: ${video.width}x${video.height}, ${duration.toFixed(2)}s`);
+  if (video.width !== 1080 || video.height !== 1920) {
+    throw new Error(`unexpected resolution ${video.width}x${video.height}, want 1080x1920`);
+  }
+  if (duration >= 60) {
+    throw new Error(`clip is ${duration.toFixed(2)}s, over the 60s Short limit`);
+  }
 }
 
 mkdirSync(OUTPUT_DIR, { recursive: true });
